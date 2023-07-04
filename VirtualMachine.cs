@@ -10,8 +10,9 @@ class VirtualMachine
         //RippleAdderTest.RunTests();
         //MultiplierTest.RunTests();
         //ALUTest.RunTests();
-        MemoryTest memoryTest = new();
-        memoryTest.RunTests();
-        //ComputerTest.RunTests();
+        //MemoryTest memoryTest = new();
+        //memoryTest.RunTests();
+        ComputerTest computerTest = new();
+        ComputerTest.RunTests();
     }
 }

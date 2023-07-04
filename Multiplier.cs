@@ -9,7 +9,7 @@ namespace MultiplierComponents
     {
         public static Longword MULTIPLY(Longword Multicand, Longword Multiplier) 
         {
-            Longword Product = new();
+            Longword Product = new(0);
             for(int Position = 31; Position >= 0; Position--)
             {
                 if(Multiplier.GetBit(Position).GetValue() == 1) // Find last 1 in multiplier.

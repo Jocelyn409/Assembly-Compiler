@@ -43,12 +43,21 @@ namespace HelperFunctionComponents
 
         public static Bit[] GetLongwordSegment(Longword A, int From, int Until) 
         {
-            Bit[] Segment = new Bit[Until-From];
-            for(int n = From, i = 0; i <= Until; n++, i++) 
+            Bit[] Segment = new Bit[Until-From+1];
+            for(int i = 0, n = From; i <= Until-From; n++, i++) 
             {
-                Segment[i] = A.GetBit(i);
+                Segment[i] = A.GetBit(n);
             }
             return Segment;
+        }
+
+        public static Boolean CheckOperation(Bit[] InputOp, Bit[] OpCode) 
+        {
+            for(int i = 0; i < 4; i++) 
+            {
+                if(InputOp[i].GetValue() != OpCode[i].GetValue()) return false;
+            }
+            return true;
         }
 
     }

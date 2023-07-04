@@ -7,7 +7,7 @@ namespace RippleAdderComponents
     {
         public static Longword RippleCarryAdderSubtractor(Longword A, Longword B, Bit C_in) {
             Bit BitPositionA, BitPositionB, FirstXOR, Sum, Carry = C_in;
-            Longword Answer = new();
+            Longword Answer = new(0);
 
             for(int i = 31; i >= 0; i--) 
             {

@@ -28,15 +28,16 @@ namespace ComputerComponents
         private void HaltSystem() 
         {
             HaltStatus.Set(1);
+            Console.WriteLine("Halted");
         }
 
-        private void Preload(String[] Input) 
+        public void Preload(String[] Input) 
         {
             String WriteString;
             Longword WriteLongword = new(0), MemoryIndex = new(0), Incrementor = new(0);
             Incrementor.SetBit(31, new Bit(1));
             int BitValue;
-            for(int i = 0; i <= Input.Length-1; i+=2) 
+            for(int i = 0; i <= Input.Length-1; i+=2) //its not adding the two arrays
             {
                 if(i+1 >= Input.Length-1) 
                 {
@@ -51,7 +52,7 @@ namespace ComputerComponents
                     BitValue = int.Parse(WriteString[s].ToString());
                     WriteLongword.SetBit(s, new Bit(BitValue));
                 }
-                MemoryInstance.Write(WriteLongword, MemoryIndex);
+                MemoryInstance.Write(MemoryIndex, WriteLongword);
                 Incrementor = RippleAdder.ADD(MemoryIndex, Incrementor);
             }
         }
@@ -67,7 +68,7 @@ namespace ComputerComponents
         private void Decode()
         {
             OpCode = HelperFunctions.GetLongwordSegment(CurrentInstruction, 16, 19);
-            if(OpCode == MOVE_OP) 
+            if(HelperFunctions.CheckOperation(OpCode, MOVE_OP)) 
             {
                 MoveValue = HelperFunctions.MaskerAND(CurrentInstruction, 24, 31);
             }
@@ -79,18 +80,18 @@ namespace ComputerComponents
 
         private void Execute() 
         {
-            if(OpCode == HALT_OP) 
+            if(HelperFunctions.CheckOperation(OpCode, HALT_OP)) 
             {
                 HaltSystem();
             }
-            else if(OpCode == MOVE_OP) 
+            else if(HelperFunctions.CheckOperation(OpCode, MOVE_OP)) 
             {
                 if(MoveValue.GetBit(24).GetValue() == 1) 
                 {
                     MoveValue = HelperFunctions.MaskerOR(MoveValue, 0, 24);
                 }
             }
-            else if(OpCode == INTERRUPT_OP) 
+            else if(HelperFunctions.CheckOperation(OpCode, INTERRUPT_OP)) 
             {
                 if(CurrentInstruction.GetBit(31).GetValue() == 0) 
                     Console.WriteLine(Register);
@@ -105,11 +106,11 @@ namespace ComputerComponents
 
         private void Store() 
         {
-            if(OpCode == MOVE_OP) 
+            if(HelperFunctions.CheckOperation(OpCode, MOVE_OP)) 
             {
                 Register[Op1Index] = MoveValue;
             }
-            else if(OpCode == JUMP_OP) 
+            else if(HelperFunctions.CheckOperation(OpCode, JUMP_OP)) 
             {
                 
             }

@@ -38,9 +38,9 @@ namespace LongwordComponents
 
         public Longword(int Value) 
         {
-            for(int i = 0; i < 32; i++) 
+            for(int i = 0; i <= 31; i++) 
             {
-                this.Bits[i].Set(Value);
+                this.Bits[i] = new Bit(Value);
             }
         }
 
@@ -100,16 +100,13 @@ namespace LongwordComponents
 
         public Longword RightShift(int Amount) // Right shifts current longword by amount many bits then returns a new longword.
         {
-            // DOESNT NEED FIXING BUT MAYBE CHANGE IT?
-            Bit[] TempArray = new Bit[32];
-            for(int n = 0; n < Amount; n++)
-            {
-                for (int i = 0; i < 32; i++) {
-                    TempArray[(i+1) % 32] = this.Bits[i];
-                }
-                TempArray[0] = new Bit(0);
+            int NewValue;
+            Longword ShiftedLongword = new(0);
+            for (int i = Amount, n = 0; i <= 31; i++, n++) {
+                NewValue = this.Bits[n].GetValue();
+                ShiftedLongword.SetBit(i, new Bit(NewValue));
             }
-            return new Longword(TempArray);
+            return ShiftedLongword;
         }
         
         public long GetUnsigned() // Returns the value of current longword as a long.
