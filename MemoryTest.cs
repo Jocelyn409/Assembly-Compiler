@@ -31,12 +31,16 @@ namespace TestClasses
 
         public void TestRead(Longword a) 
         {
-            Console.WriteLine(memory.Read(a));
+            Longword ByteCount = new(0);
+            ByteCount.SetBit(29, new Bit(1));
+            Console.WriteLine(memory.Read(a, ByteCount));
         }
 
         public void TestWrite(Longword a, Longword b) 
         {   
-            memory.Write(a, b);
+            Longword ByteCount = new(0);
+            ByteCount.SetBit(29, new Bit(1));
+            memory.Write(a, b, ByteCount);
         }
 
     }

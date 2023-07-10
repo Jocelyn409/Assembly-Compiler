@@ -6,13 +6,21 @@ class VirtualMachine
     static void Main(string[] args)
     {
         //BitTest.RunTests();
+
         //LongwordTest.RunTests();
+
         //RippleAdderTest.RunTests();
+
         //MultiplierTest.RunTests();
+
         //ALUTest.RunTests();
+
         //MemoryTest memoryTest = new();
         //memoryTest.RunTests();
-        ComputerTest computerTest = new();
-        ComputerTest.RunTests();
+
+        ///ComputerTest computerTest = new();
+        //ComputerTest.RunTests();
+
+        AssemblyTest.RunTests();
     }
 }

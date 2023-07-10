@@ -19,11 +19,6 @@ namespace ALUComponents
             Bit[] ADD_OP =          new Bit[4] {new Bit(1), new Bit(1), new Bit(1), new Bit(0)};
             Bit[] SUBTRACT_OP =     new Bit[4] {new Bit(1), new Bit(1), new Bit(1), new Bit(1)};
             Bit[] MULTIPLY_OP =     new Bit[4] {new Bit(0), new Bit(1), new Bit(1), new Bit(1)};
-            
-            Bit[] HALT_OP =         new Bit[4] {new Bit(0), new Bit(0), new Bit(0), new Bit(0)};
-            Bit[] MOVE_OP =         new Bit[4] {new Bit(0), new Bit(0), new Bit(0), new Bit(1)};
-            Bit[] INTERRUPT_OP =    new Bit[4] {new Bit(0), new Bit(0), new Bit(1), new Bit(0)};
-            Bit[] JUMP_OP =         new Bit[4] {new Bit(0), new Bit(0), new Bit(1), new Bit(1)};
 
             if(HelperFunctions.CheckOperation(Operation, AND_OP)) return A.AND(B);
             else if(HelperFunctions.CheckOperation(Operation, OR_OP)) return A.OR(B);
@@ -40,10 +35,6 @@ namespace ALUComponents
             else if(HelperFunctions.CheckOperation(Operation, ADD_OP)) return RippleAdder.ADD(A, B);
             else if(HelperFunctions.CheckOperation(Operation, SUBTRACT_OP)) return RippleAdder.SUBTRACT(A, B);
             else if(HelperFunctions.CheckOperation(Operation, MULTIPLY_OP)) return Multiplier.MULTIPLY(A, B);
-            else if(HelperFunctions.CheckOperation(Operation, HALT_OP)) return new Longword(0);
-            else if(HelperFunctions.CheckOperation(Operation, MOVE_OP)) return new Longword(0);
-            else if(HelperFunctions.CheckOperation(Operation, INTERRUPT_OP)) return new Longword(0);
-            else if(HelperFunctions.CheckOperation(Operation, JUMP_OP)) return new Longword(0);
             else throw new Exception("--- INVALID INPUT FOR ALU OPERATOR BITS ---");
 
 	    }

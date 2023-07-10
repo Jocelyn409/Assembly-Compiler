@@ -6,7 +6,7 @@ namespace MemoryComponents
     public class Memory 
     {
         public Memory() 
-        {
+        { // Initialize Storage.
             for(int x = 0; x < 8192; x++) 
             {
                 Storage[x] = new Bit(0);
@@ -15,31 +15,33 @@ namespace MemoryComponents
 
         public Bit[] Storage = new Bit[8192]; // 8192 bits, 1024 bytes, or 256 longwords.
 
-        // why the hell cant we just read and write by longwords?
-        public Longword Read(Longword Address) // Reads 2 bytes at a time.
+        public Longword Read(Longword Address, Longword ByteCount) // Reads ByteCount bytes at a time.
         {
-            for(int i = 0; i < 24; i++)
+            for(int i = 0; i <= 21; i++)
             {
-                Address.SetBit(i, new Bit(0));
+                Address.SetBit(i, new Bit(0)); // or just use an error instead? or a masker if not.
             }
-            int DecimalAdress = (int)Address.GetUnsigned();
-            Bit[] TempArray = new Bit[32];
-            for(int n = DecimalAdress*16, Pos = 0; n < DecimalAdress*16+32; n++, Pos++) 
+            
+            int DecimalAddress = Address.GetSigned()*8;
+            int DecimalByteCount = ByteCount.GetSigned()*8+DecimalAddress;
+            Longword ReturnLongword = new(0);
+
+            for(int n = DecimalAddress, Pos = 0; n < DecimalByteCount; n++, Pos++) 
             {
-                TempArray[Pos] = Storage[n];
+                ReturnLongword.SetBit(Pos, Storage[n]);
             }
-            Array.Fill(TempArray, new Bit(0), 16, 16);
-            return new Longword(TempArray);
+            return ReturnLongword;
         }
 
-        public void Write(Longword Address, Longword Value) // Writes 2 bytes at a time.
+        public void Write(Longword Address, Longword Value, Longword ByteCount) // Writes ByteCount bytes at a time.
         {
-            for(int i = 0; i < 24; i++) // replace with a masker
+            for(int i = 0; i <= 21; i++) 
             {
-                Address.SetBit(i, new Bit(0));
+                Address.SetBit(i, new Bit(0)); // or just use an error instead? or a masker if not.
             }
-            int DecimalAdress = (int)Address.GetUnsigned();
-            for(int n = DecimalAdress*16, Pos = 0; n < DecimalAdress*16+32; n++, Pos++) 
+            int DecimalAddress = Address.GetSigned()*8;
+            int DecimalByteCount = ByteCount.GetSigned()*8+DecimalAddress;
+            for(int n = DecimalAddress, Pos = 0; n < DecimalByteCount; n++, Pos++) 
             {
                 Storage[n] = Value.GetBit(Pos);
             }
