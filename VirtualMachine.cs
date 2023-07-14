@@ -18,8 +18,8 @@ class VirtualMachine
         //MemoryTest memoryTest = new();
         //memoryTest.RunTests();
 
-        ///ComputerTest computerTest = new();
-        //ComputerTest.RunTests();
+        ComputerTest computerTest = new();
+        ComputerTest.RunTests();
 
         AssemblyTest.RunTests();
     }

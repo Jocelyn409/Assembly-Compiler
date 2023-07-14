@@ -11,7 +11,7 @@ namespace TestClasses
 
         public static void Test1() 
         {
-            string[] input = new string[5];
+            string[] input = new string[4];
             /*
             Computer cpu1 = new();
             input[0] = "0000000000000001";
@@ -21,11 +21,11 @@ namespace TestClasses
             Console.WriteLine("End of CPU1");*/
 
             Computer cpu2 = new();
-            input[0] = "0001001000001010";
-            input[1] = "0001000100011010";
-            input[2] = "1110000100100011";
-            input[3] = "0010000000000000";
-            input[4] = "0010000000000001";
+            input[0] = "0011000000000100";
+            input[1] = "0001000100000100";
+            input[2] = "0010000000000000";
+            input[3] = "0000000000000000";
+            
             cpu2.Preload(input);
             cpu2.Run();
             Console.WriteLine("End of CPU2");

@@ -9,13 +9,17 @@ namespace ComputerComponents
 {
     public class Computer 
     {
+        readonly Bit[] ADD_OP =       new Bit[4] {new Bit(1), new Bit(1), new Bit(1), new Bit(0)};
+        readonly Bit[] SUBTRACT_OP =  new Bit[4] {new Bit(1), new Bit(1), new Bit(1), new Bit(1)};
+
         readonly Bit[] HALT_OP =      new Bit[4] {new Bit(0), new Bit(0), new Bit(0), new Bit(0)};
         readonly Bit[] MOVE_OP =      new Bit[4] {new Bit(0), new Bit(0), new Bit(0), new Bit(1)};
         readonly Bit[] INTERRUPT_OP = new Bit[4] {new Bit(0), new Bit(0), new Bit(1), new Bit(0)};
         readonly Bit[] JUMP_OP =      new Bit[4] {new Bit(0), new Bit(0), new Bit(1), new Bit(1)};
-        readonly Bit[] COMPARE_OP =    new Bit[4] {new Bit(0), new Bit(1), new Bit(0), new Bit(0)};
+        readonly Bit[] COMPARE_OP =   new Bit[4] {new Bit(0), new Bit(1), new Bit(0), new Bit(0)};
         readonly Bit[] BRANCH_OP =    new Bit[4] {new Bit(0), new Bit(1), new Bit(0), new Bit(1)};
         
+        // merge variables that can be reused to take up less space
         private Bit HaltStatus = new(); // 1 if computer is halted, 0 if not.
         private Memory MemoryInstance = new();
         private Longword Incrementor = new(0);
@@ -24,14 +28,15 @@ namespace ComputerComponents
         private Longword CurrentInstruction = new(0);
         private Longword[] Register = new Longword[16]; // reset registers before writing to them?
         private Longword Op1 = new(0), Op2 = new(0);
-        int Op1Index, Op2Index;
-        Bit[] OpCode = new Bit[4];
+        private int Op1Index, Op2Index;
+        private Bit[] OpCode = new Bit[4];
         private Longword Result = new(0);
         private Longword MoveValue = new(0);
         private Longword JumpValue = new(0);
         private Longword CR1 = new(0), CR2 = new(0); // Compare registers.
-        private Bit BC1 = new(0);
-        private Bit BC2 = new(0);
+        private int CompareResult;
+        private Longword CBR = new(0); // Current branch result.
+        private Longword BranchAddress = new(0);
 
         public Computer() 
         {
@@ -73,7 +78,7 @@ namespace ComputerComponents
         }
 
         private void Fetch()
-        { // Read 2 bytes at memory address ProgramCounter. Then increase PC by Incrementor.
+        {   // Read 2 bytes at memory address ProgramCounter. Then increase PC by Incrementor.
             CurrentInstruction = MemoryInstance.Read(ProgramCounter, ByteCount).RightShift(16);
             ProgramCounter = RippleAdder.ADD(ProgramCounter, Incrementor);
         }
@@ -81,7 +86,8 @@ namespace ComputerComponents
         private void Decode()
         {
             OpCode = HelperFunctions.GetLongwordSegment(CurrentInstruction, 16, 19);
-            if(HelperFunctions.CheckOperation(OpCode, MOVE_OP)) 
+            if(HelperFunctions.CheckOperation(OpCode, MOVE_OP)) // remove checkoperation?
+            // replace it with something else to evaluate the ops, like getunsigned()?
             {
                 MoveValue = HelperFunctions.MaskerAND(CurrentInstruction, 24, 31);
             }
@@ -96,16 +102,17 @@ namespace ComputerComponents
             }
             else if(HelperFunctions.CheckOperation(OpCode, BRANCH_OP)) 
             {
-                BC1 = CurrentInstruction.GetBit(20);
-                BC2 = CurrentInstruction.GetBit(21);
+                CBR.SetBit(31, CurrentInstruction.GetBit(20));
+                CBR.SetBit(30, CurrentInstruction.GetBit(21));
             }
+            // make these last 4 lines an else then add them to else if's that need them.
             Op1 = HelperFunctions.MaskerAND(CurrentInstruction, 20, 23).RightShift(8);
             Op2 = HelperFunctions.MaskerAND(CurrentInstruction, 24, 27).RightShift(4);
             Op1Index = Op1.GetSigned();
             Op2Index = Op2.GetSigned();
         }
 
-        private void Execute() 
+        private void Execute()
         {
             if(HelperFunctions.CheckOperation(OpCode, HALT_OP)) 
             {
@@ -137,6 +144,35 @@ namespace ComputerComponents
                     Console.WriteLine();
                 }
             }
+            else if(HelperFunctions.CheckOperation(OpCode, COMPARE_OP)) 
+            {
+                CompareResult = ALU.DoOperation(
+                    SUBTRACT_OP, 
+                    Register[CR2.GetUnsigned()], 
+                    Register[CR1.GetUnsigned()]).GetSigned();
+            }
+            else if(HelperFunctions.CheckOperation(OpCode, BRANCH_OP)) 
+            {
+                int CBRValue = CBR.GetSigned();
+                switch(CBRValue) 
+                {
+                    case 0:     // 00 00 = 0
+                    case 1:     // 00 01 = 1
+                    case 10:    // 10 10 = 10
+                    case 11:    // 10 11 = 11
+                    case 5:     // 01 01 = 5
+                    case 7:     // 01 11 = 7 
+                        BranchAddress = HelperFunctions.MaskerAND(CurrentInstruction, 23, 31);
+                        if(CurrentInstruction.GetBit(22).GetValue() == 1) 
+                        {
+                            BranchAddress = HelperFunctions.MaskerOR(BranchAddress, 0, 22);
+                        }
+                    break;
+                    default:
+                        BranchAddress = new(0);
+                    break;
+                }
+            }
             else if(!HelperFunctions.CheckOperation(OpCode, JUMP_OP))
             {
                 Result = ALU.DoOperation(OpCode, Register[Op1Index], Register[Op2Index]);
@@ -153,10 +189,26 @@ namespace ComputerComponents
             {
                 ProgramCounter = JumpValue;
             }
+            else if(HelperFunctions.CheckOperation(OpCode, COMPARE_OP)) 
+            {
+                CBR = new(0); // Reset compare branch results since we are doing a new compare.
+                if(CompareResult > 0) 
+                {
+                    CBR.SetBit(29, new Bit(1));
+                }
+                if(CompareResult == 0) 
+                {
+                    CBR.SetBit(28, new Bit(1));
+                }
+            }
+            else if(HelperFunctions.CheckOperation(OpCode, BRANCH_OP)) 
+            {
+                ProgramCounter = ALU.DoOperation(ADD_OP, ProgramCounter, BranchAddress);
+            }
             else if(!HelperFunctions.CheckOperation(OpCode, INTERRUPT_OP))
             {
-                Register
-                [HelperFunctions.MaskerAND(CurrentInstruction, 28, 31).GetSigned()] 
+                Register[
+                    HelperFunctions.MaskerAND(CurrentInstruction, 28, 31).GetSigned()] 
                 =  Result; // Put result of ALU operation in register.
             }
         }
@@ -170,6 +222,7 @@ namespace ComputerComponents
                 Execute();
                 Store();
             }
+            Console.WriteLine(Register[0]);
         }
 
     }

@@ -30,7 +30,6 @@ namespace AssemblerComponents
             {
                 int Factor = 128;
                 char[] OutputBits = new char[8] {'0', '0', '0', '0', '0', '0', '0', '0',};
-
                 if(OutputInt < 0) {
                     OutputBits[0] = '1';
                     OutputInt *= -1;
@@ -74,10 +73,10 @@ namespace AssemblerComponents
 
                     "HALT"      => "0000000000000000",
                     "MOVE"      => "0001" + CheckRegValue(Instr[1], 0) + CheckRegValue(Instr[2], 2),
-                    "INTERRUPT" => "001000000000000" + Instr[1][3],
-                    "JUMP"      => "0011", // needs 12 bits more
+                    "INTERRUPT" => "001000000000000" + Instr[Instr.Length-1],
+                    "JUMP"      => "0011000000000100", // needs 12 bits more
                     "COMPARE"   => "01000000", // 8 bits more
-                    //"BRANCH"=> "0101"
+                    "BRANCH"    => "0101",
                     _ => throw new Exception("Invalid mnemonic \"" + Instr[0] + "\" in instruction."),
                 };
             }

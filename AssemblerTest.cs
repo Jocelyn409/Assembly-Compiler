@@ -11,8 +11,12 @@ namespace TestClasses
 
         public static void TestAssemble() 
         {
-            String[] test = new String[1] {"SAL R1 32"};
-            Console.WriteLine(Assembler.Assemble(test)[0]);
+            String[] test = new String[4] {"jump 4","move R1 5","interrupt 0","halt"};
+            string[] AssembledCode = Assembler.Assemble(test);
+            foreach(string x in AssembledCode) 
+            {
+                Console.WriteLine(x);
+            }
         }
 
     }
